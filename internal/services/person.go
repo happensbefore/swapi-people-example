@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"swapi/internal/infra/lists"
 	"swapi/internal/infra/swclient"
 	"swapi/internal/models"
 )
@@ -60,10 +61,9 @@ func (s *PersonService) Run(ctx context.Context) error {
 			continue
 		}
 
-		data := make([]string, len(res.Data))
-		for i, person := range res.Data {
-			data[i] = person.Name
-		}
+		data := lists.Map(res.Data, func(item models.Person) string {
+			return item.Name
+		})
 
 		s.dataBuffer.Add(data)
 

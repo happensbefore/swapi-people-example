@@ -1,6 +1,8 @@
 package swclient
 
+import "swapi/internal/infra/lists"
+
 type Response[T any] struct {
-	Data     []T
+	Data     lists.List[T]
 	NextPage int
 }
