@@ -2,6 +2,7 @@ package flusher
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -29,17 +30,24 @@ func (f *TimeoutFlusher) Run(ctx context.Context) error {
 
 		select {
 		case <-ctx.Done():
-			f.flush()
-			return nil
+			return f.flush()
 		default:
 		}
 
-		f.flush()
+		err := f.flush()
+		if err != nil {
+			return fmt.Errorf("can't flush: %w", err)
+		}
 	}
 }
 
-func (f *TimeoutFlusher) flush() {
+func (f *TimeoutFlusher) flush() error {
 	for _, data := range f.dataGetter.GetAll() {
-		f.dataPrinter.Print(data)
+		err := f.dataPrinter.Print(data)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

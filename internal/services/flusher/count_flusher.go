@@ -2,6 +2,7 @@ package flusher
 
 import (
 	"context"
+	"fmt"
 )
 
 const batchSize = 10
@@ -26,17 +27,24 @@ func (f *CountFlusher) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			f.flush()
-			return nil
+			return f.flush()
 		default:
 		}
 
-		f.flush()
+		err := f.flush()
+		if err != nil {
+			return fmt.Errorf("can't flush: %w", err)
+		}
 	}
 }
 
-func (f *CountFlusher) flush() {
+func (f *CountFlusher) flush() error {
 	for _, data := range f.dataGetter.Get(batchSize) {
-		f.dataPrinter.Print(data)
+		err := f.dataPrinter.Print(data)
+		if err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

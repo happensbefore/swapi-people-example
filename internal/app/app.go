@@ -52,7 +52,10 @@ func New() *App {
 
 	personService := services.NewPersonService(finisher, swapiClient, queueService)
 
-	printService := services.NewPrintService(stringserializer.New(), printer.New(os.Stdout))
+	printService := services.NewPrintService(
+		stringserializer.New(),
+		printer.New(os.Stdout),
+	)
 
 	timeoutFlusher := flusher.NewTimeoutFlusher(q, printService)
 	countFlusher := flusher.NewCountFlusher(q, printService)
@@ -63,7 +66,6 @@ func New() *App {
 		services: []Runnable{
 			countFlusher,
 			timeoutFlusher,
-			printService,
 			personService,
 			queueService,
 		},
